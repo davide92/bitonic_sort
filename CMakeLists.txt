@@ -1,0 +1,15 @@
+cmake_minimum_required(VERSION 3.13)
+project(bitonic_sort)
+
+set(CMAKE_CXX_STANDARD 14)
+
+#Bring the headers (.h) into the project
+include_directories(include)
+#Bring the source files (.cpp) into the project
+include_directories(src)
+
+add_library(utils STATIC src/utils.cpp)
+
+add_executable(bitonic_sort src/main.cpp)
+
+target_link_libraries(bitonic_sort utils)
