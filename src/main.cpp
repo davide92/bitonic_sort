@@ -1,9 +1,7 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include <iostream>
 #include <stdexcept>
 #include <string>
-#include <sys/time.h>
+#include <time.h>
 #include "utils.h"
 
 int main(int argc , char** argv) {
@@ -21,7 +19,7 @@ int main(int argc , char** argv) {
     int num_tasks;
 
     /*Number of processor and number of elements to sort passed as input arguments*/
-    int p, q;
+    int p = 0, q = 0;
 
     double startTime;
     double endTime ;
@@ -30,8 +28,10 @@ int main(int argc , char** argv) {
     if (argc < 3) {
         /*If not print a warning message with the correct way to use*/
         /*the program and terminate the execution. */
-        printf("Invalid command line argument option! \n");
-        printf("Usage : %s p q where p is the number of MPI processes to be spawned and q the number of elements to sort. \n ", argv[0]);
+        std::cout << "Invalid command line argument option! \n";
+        std::cout << "Usage: ";
+        std::cout << argv[0];
+        std::cout << " p q where: \n - p is the number of MPI processes to be spawned\n - q the number of elements to sort. \n ";
         exit(ARG_ERROR);
     }
 
@@ -61,5 +61,11 @@ int main(int argc , char** argv) {
     } catch (std::out_of_range const &ex) {
         std::cerr << "Number out of range: " << arg2 << '\n';
     }
+
+    std::cout << "The inserted values are p = ";
+    std::cout << p;
+    std::cout << " and q = ";
+    std::cout << q;
+    std::cout << ".\n";
 
 }
