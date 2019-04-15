@@ -3,6 +3,7 @@
 #include <string>
 #include <time.h>
 #include "utils.h"
+#include "input_parser.h"
 
 int main(int argc , char** argv) {
 
@@ -26,8 +27,7 @@ int main(int argc , char** argv) {
 
     /*Check if enough arguments were passed to the process.*/
     if (argc < 3) {
-        /*If not print a warning message with the correct way to use*/
-        /*the program and terminate the execution. */
+        /*If not print a warning message with the correct way to use the program and terminate the execution. */
         std::cout << "Invalid command line argument option! \n";
         std::cout << "Usage: ";
         std::cout << argv[0];
@@ -36,32 +36,10 @@ int main(int argc , char** argv) {
     }
 
     /* Parse the command line arguments. */
-    std::string arg1 = argv[1];
-    try {
-        std::size_t pos;
-        p = std::stoi(arg1, &pos);
-        if (pos < arg1.size()) {
-            std::cerr << "Trailing characters after number: " << arg1 << '\n';
-        }
-    } catch (std::invalid_argument const &ex) {
-        std::cerr << "Invalid number: " << arg1 << '\n';
-    } catch (std::out_of_range const &ex) {
-        std::cerr << "Number out of range: " << arg1 << '\n';
-    }
+    p = parse_input(argv[1]);
+    q = parse_input(argv[2]);
 
-    std::string arg2 = argv[2];
-    try {
-        std::size_t pos;
-        q = std::stoi(arg2, &pos);
-        if (pos < arg2.size()) {
-            std::cerr << "Trailing characters after number: " << arg2 << '\n';
-        }
-    } catch (std::invalid_argument const &ex) {
-        std::cerr << "Invalid number: " << arg2 << '\n';
-    } catch (std::out_of_range const &ex) {
-        std::cerr << "Number out of range: " << arg2 << '\n';
-    }
-
+    /* Print input value */
     std::cout << "The inserted values are p = ";
     std::cout << p;
     std::cout << " and q = ";

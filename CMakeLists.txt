@@ -9,7 +9,8 @@ include_directories(include)
 include_directories(src)
 
 add_library(utils STATIC src/utils.cpp)
+add_library(parser STATIC src/input_parser.cpp)
 
 add_executable(bitonic_sort src/main.cpp)
 
-target_link_libraries(bitonic_sort utils)
+target_link_libraries(bitonic_sort utils parser)
