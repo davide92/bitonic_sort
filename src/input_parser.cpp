@@ -1,20 +1,41 @@
 #include <iostream>
-//#include "input_parser.h"
+#include "input_parser.h"
+
+using namespace std;
 
 int parse_input(char* argv) {
     int i = 0;
 
-    std::string arg = argv;
+    string arg = argv;
     try {
-        std::size_t pos;
-        i = std::stoi(arg, &pos);
+        size_t pos;
+        i = stoi(arg, &pos);
         if (pos < arg.size()) {
-            std::cerr << "Trailing characters after number: " << arg << '\n';
+            cerr << "Trailing characters after number: " << arg << '\n';
         }
     } catch (std::invalid_argument const &ex) {
-        std::cerr << "Invalid number: " << arg << '\n';
+        cerr << "Invalid number: " << arg << '\n';
     } catch (std::out_of_range const &ex) {
-        std::cerr << "Number out of range: " << arg << '\n';
+        cerr << "Number out of range: " << arg << '\n';
+    }
+
+    return i;
+}
+
+const int parse_input_to_const(char* argv) {
+    const int i = 0;
+
+    string arg = argv;
+    try {
+        size_t pos;
+        i = stoi(arg, &pos);
+        if (pos < arg.size()) {
+            cerr << "Trailing characters after number: " << arg << '\n';
+        }
+    } catch (std::invalid_argument const &ex) {
+        cerr << "Invalid number: " << arg << '\n';
+    } catch (std::out_of_range const &ex) {
+        cerr << "Number out of range: " << arg << '\n';
     }
 
     return i;

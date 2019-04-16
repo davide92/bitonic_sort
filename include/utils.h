@@ -5,7 +5,7 @@
 // Define enumerated types for errors started from 3
 enum {
     ARG_ERROR = 3,
-    MALLOC_ERROR,
+    CALLOC_ERROR,
     NTHREADS_ERROR
 } errors;
 
