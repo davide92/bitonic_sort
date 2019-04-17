@@ -1,7 +1,6 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
-#include <vector>
 #include <time.h>
 #include "utils.h"
 #include "input_parser.h"
@@ -17,8 +16,6 @@ int main(int argc , char** argv) {
 
     /*Initial array*/
     int* array = nullptr;
-
-    vector<int> vec;
 
     /*Local array of elements for each process*/
     int* local_array;
