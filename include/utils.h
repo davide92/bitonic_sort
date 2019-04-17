@@ -2,6 +2,7 @@
 #define BITONIC_SORT_UTILS_H
 
 #include <stdlib.h>
+
 // Define enumerated types for errors started from 3
 enum {
     ARG_ERROR = 3,
@@ -9,5 +10,6 @@ enum {
     NTHREADS_ERROR
 } errors;
 
+void populate_array(int* array, int num_element);
 
 #endif //BITONIC_SORT_UTILS_H

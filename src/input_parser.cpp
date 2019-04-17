@@ -22,7 +22,7 @@ int parse_input(char* argv) {
     return i;
 }
 
-const int parse_input_to_const(char* argv) {
+/*const int parse_input_to_const(char* argv) {
     const int i = 0;
 
     string arg = argv;
@@ -39,6 +39,6 @@ const int parse_input_to_const(char* argv) {
     }
 
     return i;
-}
+}*/
 
 
