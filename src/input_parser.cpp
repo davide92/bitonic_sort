@@ -1,4 +1,3 @@
-#include <iostream>
 #include "input_parser.h"
 
 using namespace std;
@@ -21,5 +20,3 @@ int parse_input(char* argv) {
 
     return i;
 }
-
-

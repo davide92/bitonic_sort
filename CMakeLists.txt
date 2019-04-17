@@ -14,9 +14,10 @@ find_library(C_OPENMPI_LIB NAMES libmpi.so PATHS /home/davide/.openmpi/lib)
 
 add_library(utils STATIC src/utils.cpp)
 add_library(parser STATIC src/input_parser.cpp)
+add_library(merge STATIC src/bitonic_merge.cpp)
 
 add_executable(bitonic_sort src/main.cpp)
 
-target_link_libraries(bitonic_sort utils parser)
+target_link_libraries(bitonic_sort merge utils parser)
 # for future reference, link gurobi separately from other libraries, no idea why
 target_link_libraries(bitonic_sort ${C_OPENMPI_LIB})

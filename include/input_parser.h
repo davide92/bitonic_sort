@@ -1,8 +1,8 @@
 #ifndef BITONIC_SORT_INPUT_PARSER_H
 #define BITONIC_SORT_INPUT_PARSER_H
 
-int parse_input(char* argv);
+#include <iostream>
 
-//const int parse_input_to_const(char* argv);
+int parse_input(char* argv);
 
 #endif //BITONIC_SORT_INPUT_PARSER_H
