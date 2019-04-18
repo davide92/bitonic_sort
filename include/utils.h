@@ -44,4 +44,12 @@ void inverse_cantor(int z, int res[2]);
  */
 void merge(int** a, int* b, int num_element, int direction);
 
+/**
+ * Verify if the array is correctly sorted
+ * @param sorted_array The pointer to the sorted array
+ * @param num_element The number of elements in the array
+ * @return 1 if the array is correctly sort, 0 otherwise
+ */
+int correct_sorted(int* sorted_array, int num_element);
+
 #endif //BITONIC_SORT_UTILS_H

@@ -79,3 +79,14 @@ void merge(int** a, int* b, int num_element, int direction) {
     *a = res;
 }
 
+int correct_sorted(int* sorted_array, int num_element) {
+    int is_sorted = 1;
+    for (int i = 1; i < num_element; i++) {
+        if (sorted_array[i - 1] > sorted_array[i]) {
+            is_sorted = 0;
+        }
+    }
+
+    return is_sorted;
+}
+
