@@ -89,10 +89,7 @@ int main(int argc , char** argv) {
         total_time = MPI_Wtime();
 
         cout << "Initial array content:\n";
-        for (int i = 0; i < q; i++) {
-            cout  << array[i] << " ";
-        }
-        cout << "\n";
+        print_array(array, q);
 
     }
 
@@ -140,7 +137,7 @@ int main(int argc , char** argv) {
 
     communi_time += MPI_Wtime() - t;
 
-    for (int i = 0; i < log2(p); i++) {
+    for (int i = 0; i < log2(num_tasks); i++) {
         for (int j = i; j >= 0 ; j--) {
             /* The next process we will be paired with is the one
              * whose j-th bit is the complement of ours. So we toggle
@@ -205,9 +202,13 @@ int main(int argc , char** argv) {
         total_time = MPI_Wtime() - total_time;
         int sorted = correct_sorted(sorted_array, q);
         printf("Array is %s sort.\n", (sorted) ? "correctly" : "not correctly");
-        cout << "Communication time: " << communi_time << " seconds.";
-        cout << "Total time to sort the array: " << total_time << " seconds.";
+        cout << "Communication time: " << communi_time << " seconds.\n";
+        cout << "Total time to sort the array: " << total_time << " seconds.\n";
+        cout << "The sorted array:\n";
+        print_array(sorted_array, q);
     }
+
+
 
     free(local_array);
     free(array);

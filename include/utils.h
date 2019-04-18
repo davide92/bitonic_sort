@@ -1,6 +1,7 @@
 #ifndef BITONIC_SORT_UTILS_H
 #define BITONIC_SORT_UTILS_H
 
+#include <iostream>
 #include <random>
 #include <cmath>
 
@@ -51,5 +52,12 @@ void merge(int** a, int* b, int num_element, int direction);
  * @return 1 if the array is correctly sort, 0 otherwise
  */
 int correct_sorted(int* sorted_array, int num_element);
+
+/**
+ * Print on the standard output the array
+ * @param array The pointer to the array to print
+ * @param num_element The number of elements in the array
+ */
+void print_array(int* array, int num_element);
 
 #endif //BITONIC_SORT_UTILS_H
