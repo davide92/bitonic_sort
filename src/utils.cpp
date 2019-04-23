@@ -91,7 +91,7 @@ int correct_sorted(int* sorted_array, int num_element) {
 }
 
 void print_array(int* array, int num_element) {
-    
+
     for (int i = 0; i < num_element; i++) {
         cout << array[i] << " ";
     }
