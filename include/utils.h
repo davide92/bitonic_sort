@@ -17,7 +17,7 @@ enum {
     NTHREADS_ERROR
 } errors;
 
-void populate_array(int* array, int num_element);
+int populate_array(int* array, int num_element);
 
 int compare(const void * a, const void * b);
 

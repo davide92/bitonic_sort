@@ -2,16 +2,32 @@
 
 using namespace std;
 
-void populate_array(int* array, int num_element) {
+int populate_array(int* array, int num_element) {
+
+    int n_elem = num_element;
 
     /*Generate random number for the array*/
     random_device rd;
     mt19937_64 mt(rd());
     uniform_int_distribution<int> dist(0, 100);
 
-    for (int i = 0; i < num_element; i++) {
-        array[i] = dist(mt);
+    if(ceil(log2(num_element)) != floor(log2(num_element))) {
+        n_elem = pow(2, ceil(log2(num_element)));
+        array = (int *)(realloc(array, n_elem));
     }
+
+    for (int i = 0; i < n_elem; i++) {
+        if (i < num_element) {
+            array[i] = dist(mt);
+        } else {
+            array[i] = INT32_MAX;
+        }
+    }
+
+    cout << "Initial array: \n";
+    print_array(array, n_elem);
+
+    return n_elem;
 }
 
 int compare (const void* a, const void* b)

@@ -27,8 +27,10 @@ int main(int argc , char** argv) {
     /*Number of processor and number of elements to sort passed as input arguments*/
     int p = 0, q = 0;
 
-    /*Total comunication time*/
-    double communi_time = 0;
+    int initial_array_size;
+
+    /*Total communication time*/
+    double communication_time = 0;
 
     /*Total time to sort with bitonic sort*/
     double total_time = 0;
@@ -84,7 +86,7 @@ int main(int argc , char** argv) {
             exit(CALLOC_ERROR);
         }
 
-        populate_array(array, q);
+        initial_array_size = populate_array(array, q);
 
         total_time = MPI_Wtime();
 
@@ -93,7 +95,7 @@ int main(int argc , char** argv) {
 
     }
 
-    num_element = q / num_tasks;
+    num_element = initial_array_size / num_tasks;
 
     local_array = (int*) calloc(num_element, sizeof(int));
 
@@ -116,7 +118,7 @@ int main(int argc , char** argv) {
      */
     MPI_Scatter(array, num_element, MPI_INT, local_array, num_element, MPI_INT, MASTER_PROCESS, MPI_COMM_WORLD);
 
-    communi_time += MPI_Wtime() - t;
+    communication_time += MPI_Wtime() - t;
     //auto end_time = chrono::high_resolution_clock::now();
 
     //auto time_spent = static_cast<chrono::duration<double>>(end_time - start_time);
@@ -125,7 +127,7 @@ int main(int argc , char** argv) {
 
     //cout << "Communication operation took: " << time_spent.count() << " seconds.";
 
-    cout << "Communication operation took: " << communi_time << " seconds.";
+    cout << "Communication operation took: " << communication_time << " seconds.";
 
     /*Sort the local elements*/
     qsort(local_array, num_element, sizeof(int), compare);
@@ -135,7 +137,7 @@ int main(int argc , char** argv) {
     /*Processes synchronization*/
     MPI_Barrier(MPI_COMM_WORLD);
 
-    communi_time += MPI_Wtime() - t;
+    communication_time += MPI_Wtime() - t;
 
     for (int i = 0; i < log2(num_tasks); i++) {
         for (int j = i; j >= 0 ; j--) {
@@ -151,9 +153,9 @@ int main(int argc , char** argv) {
              * elements , if not the larger ones.
             */
             if ((( process_id >> (i + 1)) & 1 ) == ((process_id >> j) & 1)) {
-                bitonic_merge(&local_array, num_element, partner, ASCENDING, communi_time);
+                bitonic_merge(&local_array, num_element, partner, ASCENDING, communication_time);
             } else {
-                bitonic_merge(&local_array, num_element, partner, DESCENDING, communi_time);
+                bitonic_merge(&local_array, num_element, partner, DESCENDING, communication_time);
             }
         }
     }
@@ -165,7 +167,7 @@ int main(int argc , char** argv) {
     /*Processes synchronization*/
     MPI_Barrier(MPI_COMM_WORLD);
 
-    communi_time += MPI_Wtime() - t;
+    communication_time += MPI_Wtime() - t;
 
     //end_time = chrono::high_resolution_clock::now();
 
@@ -187,7 +189,7 @@ int main(int argc , char** argv) {
 
     MPI_Gather(local_array, num_element, MPI_INT, sorted_array, num_element, MPI_INT, MASTER_PROCESS, MPI_COMM_WORLD);
 
-    communi_time += MPI_Wtime() - t;
+    communication_time += MPI_Wtime() - t;
 
     //end_time = chrono::high_resolution_clock::now();
 
@@ -202,7 +204,7 @@ int main(int argc , char** argv) {
         total_time = MPI_Wtime() - total_time;
         int sorted = correct_sorted(sorted_array, q);
         printf("Array is %s sort.\n", (sorted) ? "correctly" : "not correctly");
-        cout << "Communication time: " << communi_time << " seconds.\n";
+        cout << "Communication time: " << communication_time << " seconds.\n";
         cout << "Total time to sort the array: " << total_time << " seconds.\n";
         cout << "The sorted array:\n";
         print_array(sorted_array, q);
