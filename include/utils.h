@@ -4,6 +4,8 @@
 #include <iostream>
 #include <random>
 #include <cmath>
+#include <vector>
+#include <algorithm>
 
 #define MASTER_PROCESS 0
 
@@ -17,9 +19,18 @@ enum {
     NTHREADS_ERROR
 } errors;
 
-int populate_array(int* array, int num_element);
+/**
+ * Populate an array of integer
+ * @param array The pointer to the array
+ * @param num_element The number of elements in the array
+ * @return The size of the populated array
+ */
+int populate_array(int *array, int num_element, int num_process);
 
-int compare(const void * a, const void * b);
+
+int int_compare(const void *a, const void *b);
+
+bool bool_compare(int i, int j);
 
 /**
  * Cantor pairing function
@@ -43,7 +54,7 @@ void inverse_cantor(int z, int res[2]);
  * @param num_element Number of element to merge
  * @param direction Merge direction order
  */
-void merge(int** a, int* b, int num_element, int direction);
+void merge(int **a, int *b, int num_element, int direction);
 
 /**
  * Verify if the array is correctly sorted
@@ -51,13 +62,21 @@ void merge(int** a, int* b, int num_element, int direction);
  * @param num_element The number of elements in the array
  * @return 1 if the array is correctly sort, 0 otherwise
  */
-int correct_sorted(int* sorted_array, int num_element);
+int correct_sorted(int *sorted_array, int num_element);
 
 /**
  * Print on the standard output the array
  * @param array The pointer to the array to print
  * @param num_element The number of elements in the array
  */
-void print_array(int* array, int num_element);
+void print_array(int *array, int num_element);
+
+std::vector<int> populate_vector(std::vector<int> array, int num_element, int num_process);
+
+std::vector<int> merge_vector(std::vector<int> a, std::vector<int> b, int direction);
+
+int correct_sorted_vector(std::vector<int> sorted_array);
+
+void print_vector(std::vector<int> array);
 
 #endif //BITONIC_SORT_UTILS_H

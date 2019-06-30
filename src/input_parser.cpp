@@ -2,7 +2,7 @@
 
 using namespace std;
 
-int parse_input(char* argv) {
+int parse_input(char *argv) {
     int i = 0;
 
     string arg = argv;

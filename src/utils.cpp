@@ -2,19 +2,20 @@
 
 using namespace std;
 
-int populate_array(int* array, int num_element) {
+int populate_array(int *array, int num_element, int num_process) {
 
     int n_elem = num_element;
 
     /*Generate random number for the array*/
+    if (floor((1.0 * num_element) / num_process) != ceil((1.0 * num_element) / num_process)) {
+       n_elem = (int) ceil((1.0 * num_element) / num_process) * num_process;
+       array = (int *)(realloc(array, n_elem));
+    }
+
+    /*Generate random number for the array*/
     random_device rd;
     mt19937_64 mt(rd());
-    uniform_int_distribution<int> dist(0, 100);
-
-    if(ceil(log2(num_element)) != floor(log2(num_element))) {
-        n_elem = pow(2, ceil(log2(num_element)));
-        array = (int *)(realloc(array, n_elem));
-    }
+    uniform_int_distribution<int> dist(0, n_elem);
 
     for (int i = 0; i < n_elem; i++) {
         if (i < num_element) {
@@ -30,9 +31,14 @@ int populate_array(int* array, int num_element) {
     return n_elem;
 }
 
-int compare (const void* a, const void* b)
-{
-    return ( *(int*) a - *(int*) b );
+int int_compare(const void *a, const void *b) {
+
+    return ( *(int *) a - *(int *) b );
+}
+
+bool bool_compare(int i, int j) {
+
+    return i < j;
 }
 
 int cantor(int a, int b) {
@@ -49,12 +55,12 @@ void inverse_cantor(int z, int res[2]) {
 
 /* keeps the smaller elements of the 2 arrays.
  * returns result pointer of the sorted array */
-int* merge_low(int* a, int* b, int num_element)
-{
+void merge_low(int *a, int *b, int num_element) {
+
     int k = 0;
     int j = 0;
 
-    int *result = (int*) calloc(num_element, sizeof(int));
+    int *result = (int *) calloc(num_element, sizeof(int));
 
     /* merging the two sorted arrays
     * we have 2N elements and we need num_element,
@@ -64,13 +70,17 @@ int* merge_low(int* a, int* b, int num_element)
         else result[i] = b[k++];
     }
 
-    return result;
+    int *tmp = a;
+    a = result;
+    result = tmp;
+
+    free(result);
 }
 
 /* keeps the larger elements of the 2 arrays.
  * returns result pointer of the sorted array */
-int* merge_high(int* a, int* b, int num_element)
-{
+void merge_high(int *a, int *b, int num_element) {
+
     int k = num_element - 1;
     int j = num_element - 1;
 
@@ -81,21 +91,24 @@ int* merge_high(int* a, int* b, int num_element)
         else result[i] = b[k--];
     }
 
-    return result;
+    int *tmp = a;
+    a = result;
+    result = tmp;
+
+    free(result);
 }
 
 /* Main merge function that calls either merge low or merge high
  * depending on the value of the direction argument.
 */
-void merge(int** a, int* b, int num_element, int direction) {
+void merge(int **a, int *b, int num_element, int direction) {
 
     /* result of the requested merge.  */
-    int* res = (direction == ASCENDING) ? merge_low(*a, b, num_element) : merge_high(*a, b, num_element);
-    free(*a);
-    *a = res;
+    (direction == ASCENDING) ? merge_low(*a, b, num_element) : merge_high(*a, b, num_element);
 }
 
-int correct_sorted(int* sorted_array, int num_element) {
+int correct_sorted(int *sorted_array, int num_element) {
+
     int is_sorted = 1;
     for (int i = 1; i < num_element; i++) {
         if (sorted_array[i - 1] > sorted_array[i]) {
@@ -106,7 +119,7 @@ int correct_sorted(int* sorted_array, int num_element) {
     return is_sorted;
 }
 
-void print_array(int* array, int num_element) {
+void print_array(int *array, int num_element) {
 
     for (int i = 0; i < num_element; i++) {
         cout << array[i] << " ";
@@ -115,3 +128,100 @@ void print_array(int* array, int num_element) {
     cout << "\n";
 }
 
+vector<int> populate_vector(vector<int> array, int num_element, int num_process) {
+
+    int new_size = num_element;
+    /*Generate random number for the array*/
+    if (floor((1.0 * num_element) / num_process) != ceil((1.0 * num_element) / num_process)) {
+        new_size = (int) ceil((1.0 * num_element) / num_process) * num_process;
+    }
+
+    random_device rd;
+    mt19937_64 mt(rd());
+    uniform_int_distribution<int> dist(0, new_size);
+
+    for (int i = 0; i < new_size; i++) {
+        if (i < num_element) {
+            array.push_back(dist(mt));
+        } else {
+            array.push_back(INT32_MAX);
+        }
+
+    }
+
+    return array;
+}
+
+vector<int> merge_low_vector(vector<int> a, vector<int> b) {
+
+    int j = 0;
+    int k = 0;
+
+    int num_element = a.size();
+
+    vector<int> result;
+    result.reserve(num_element);
+
+    /* merging the two sorted arrays
+    * we have 2N elements and we need num_element,
+    * so there is no way to have leftovers*/
+    for (int i = 0; i < num_element; i++) {
+        if (a[j] < b[k]) result[i] = a[j++];
+        else result[i] = b[k++];
+    }
+
+    return result;
+}
+
+/* keeps the larger elements of the 2 arrays.
+ * returns result pointer of the sorted array */
+vector<int> merge_high_vector(vector<int> a, vector<int> b) {
+
+    int num_element = a.size();
+    int k = num_element - 1;
+    int j = num_element - 1;
+
+    vector<int> result;
+    result.reserve(num_element);
+
+    for (int i = num_element - 1; i >= 0; --i) {
+        if (a[j] > b[k]) result[i] = a[j--];
+        else result[i] = b[k--];
+    }
+
+    return result;
+}
+
+vector<int> merge_vector(vector<int> a, vector<int> b, int direction) {
+    /* result of the requested merge.  */
+    vector<int> result;
+
+    result = (direction == ASCENDING) ? merge_low_vector(a, b) : merge_high_vector(a, b);
+
+    copy(result.begin(), result.end(), a.begin());
+
+    return a;
+}
+
+
+int correct_sorted_vector(vector<int> sorted_array) {
+
+    int is_sorted = 1;
+    for (int i = 1; i < sorted_array.size(); i++) {
+        if (sorted_array[i - 1] > sorted_array[i]) {
+            is_sorted = 0;
+        }
+    }
+
+    return is_sorted;
+}
+
+
+void print_vector(std::vector<int> array) {
+
+    for (int i : array) {
+        cout << i << " ";
+    }
+
+    cout << "\n";
+}

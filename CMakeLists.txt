@@ -10,7 +10,7 @@ include_directories(src)
 
 add_library(utils STATIC src/utils.cpp)
 add_library(parser STATIC src/input_parser.cpp)
-add_library(merge STATIC src/bitonic_merge.cpp)
+add_library(bitonic_merge STATIC src/bitonic_merge.cpp)
 
 add_executable(bitonic_sort src/main.cpp)
 
@@ -19,4 +19,4 @@ find_package(MPI REQUIRED)
 set(CMAKE_CXX_COMPILE_FLAGS ${CMAKE_CXX_COMPILE_FLAGS} ${MPI_COMPILE_FLAGS})
 set(CMAKE_CXX_LINK_FLAGS ${CMAKE_CXX_LINK_FLAGS} ${MPI_LINK_FLAGS})
 include_directories(SYSTEM ${MPI_INCLUDE_PATH})
-target_link_libraries(bitonic_sort merge utils parser ${MPI_LIBRARIES})
+target_link_libraries(bitonic_sort bitonic_merge utils parser ${MPI_LIBRARIES})
