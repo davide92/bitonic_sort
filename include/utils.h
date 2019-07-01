@@ -19,6 +19,14 @@ enum {
     NTHREADS_ERROR
 } errors;
 
+
+/*Input data structure*/
+typedef struct {
+    int p; //number of processors
+    int n; //number of elements to sort
+} input;
+
+
 /**
  * Populate an array of integer
  * @param array The pointer to the array

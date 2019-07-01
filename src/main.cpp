@@ -27,7 +27,9 @@ int main(int argc , char **argv) {
     int num_tasks;
 
     /*Number of processor and number of elements to sort passed as input arguments*/
-    int p = 0, n = 0;
+    //int p = 0, n = 0;
+
+    input input_data;
 
     int initial_array_size = 0;
 
@@ -40,12 +42,7 @@ int main(int argc , char **argv) {
     /*Latest time MPI_Wtime is called*/
     double t;
 
-    /*Check if enough arguments were passed to the process.*/
-    if (argc < 3) {
-        /*If not print a warning message with the correct way to use the program and terminate the execution. */
-        cout << "Invalid command line argument option! \n" << "Usage: " << argv[0] << " p n where: \n - p is the number of MPI processes to be spawned\n - n the number of elements to sort. \n ";
-        exit(ARG_ERROR);
-    }
+    parse_command_line(argc, argv, &input_data);
 
     /*Initialize MPI processes*/
     MPI_Init(&argc, &argv);
@@ -56,11 +53,11 @@ int main(int argc , char **argv) {
     MPI_Comm_rank(MPI_COMM_WORLD, &process_id);
 
     /* Parse the command line arguments. */
-    p = parse_input(argv[1]);
-    n = parse_input(argv[2]);
+    /*p = parse_input(argv[1]);
+    n = parse_command_line(argv[2]);*/
 
     /* Print input value */
-    cout << "The inserted values are p = " << p << " and n = " << n << ".\n";
+    cout << "The inserted values are p = " << input_data.p << " and n = " << input_data.n << ".\n";
 
     cout << "Number of task running: " << num_tasks << ".\n";
 
@@ -76,7 +73,7 @@ int main(int argc , char **argv) {
 
     if (process_id == MASTER_PROCESS) {
         /*Memory allocation for the list of elements to sort*/
-        array = (int *) calloc(n, sizeof(int));
+        array = (int *) calloc(input_data.n, sizeof(int));
 
         /*Check if allocation succeed*/
         if (array == nullptr) {
@@ -88,7 +85,7 @@ int main(int argc , char **argv) {
             exit(CALLOC_ERROR);
         }
 
-        initial_array_size = populate_array(array, n, num_tasks);
+        initial_array_size = populate_array(array, input_data.n, num_tasks);
 
         //array = populate_vector(array, n, num_tasks);
 
@@ -195,7 +192,7 @@ int main(int argc , char **argv) {
     int *sorted_array = nullptr;
 
     if (process_id == MASTER_PROCESS) {
-        sorted_array = (int *) calloc(n, sizeof(int));
+        sorted_array = (int *) calloc(input_data.n, sizeof(int));
     }
 
     /*vector<int> sorted_array;
@@ -225,12 +222,12 @@ int main(int argc , char **argv) {
 
     if (process_id == MASTER_PROCESS) {
         total_time = MPI_Wtime() - total_time;
-        int sorted = correct_sorted(sorted_array, n);
+        int sorted = correct_sorted(sorted_array, input_data.n);
         printf("Array is %s sort.\n", (sorted) ? "correctly" : "not correctly");
         cout << "Communication time: " << communication_time << " seconds.\n";
         cout << "Total time to sort the array: " << total_time << " seconds.\n";
         cout << "The sorted array:\n";
-        print_array(sorted_array, n);
+        print_array(sorted_array, input_data.n);
     }
 
     /*if (process_id == MASTER_PROCESS) {

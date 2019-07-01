@@ -2,7 +2,10 @@
 #define BITONIC_SORT_INPUT_PARSER_H
 
 #include <iostream>
+#include <cstring>
+#include <cstdlib>
+#include "utils.h"
 
-int parse_input(char *argv);
+void parse_command_line(int argc, char **argv, input *input_data);
 
 #endif //BITONIC_SORT_INPUT_PARSER_H
