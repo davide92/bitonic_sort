@@ -4,43 +4,52 @@
 #include "bitonic_merge.h"
 #include "mpi.h"
 
-
 using namespace std;
 
-int main(int argc , char **argv) {
+/*Process identifier*/
+int process_id;
+
+/*Number of elements of the initial array given by hte user*/
+int n = 0;
+
+/*Number of elements of the initial array after padding*/
+int initial_array_size = 0;
+
+/*Local array of elements for each process*/
+int *local_array;     
+
+/*Number of tasks running*/
+int num_tasks;
+
+/*Total communication time*/
+double communication_time;
+
+nt main(int argc , char **argv) {
 
     /*Process identifier*/
     int process_id;
 
     /*Initial array*/
-    int *array = nullptr;
-    //vector<int> array;
-
-    /*Local array of elements for each process*/
-    int *local_array;
-    //vector<int> local_array;
-
-    /*Number of elements in the array of elements*/
-    int num_element;
-
-    /*Number of tasks running*/
-    int num_tasks;
+    int *initial_array = NULL;
 
     /*Number of processor and number of elements to sort passed as input arguments*/
-    //int p = 0, n = 0;
+    int p = 0;
+
+    communication_time = 0;
 
     input input_data;
 
-    int initial_array_size = 0;
+    /*Starting time to sort with bitonic sort*/
+    double t_start = 0;
 
-    /*Total communication time*/
-    double communication_time = 0;
-
-    /*Total time to sort with bitonic sort*/
-    double total_time = 0;
+    /*Stopping time to sort with bitonic sort*/
+    double t_stop = 0;
 
     /*Latest time MPI_Wtime is called*/
     double t;
+
+    /*Number of elements in the array of elements*/
+    int num_element;
 
     parse_command_line(argc, argv, &input_data);
 
@@ -52,196 +61,177 @@ int main(int argc , char **argv) {
     /*Get the identifier of the process from the MPI daemon*/
     MPI_Comm_rank(MPI_COMM_WORLD, &process_id);
 
-    /* Parse the command line arguments. */
-    /*p = parse_input(argv[1]);
-    n = parse_command_line(argv[2]);*/
+    if (argc > 3) {
 
-    /* Print input value */
-    cout << "The inserted values are p = " << input_data.p << " and n = " << input_data.n << ".\n";
+        p = input_data.p;
 
-    cout << "Number of task running: " << num_tasks << ".\n";
+    } else {
+
+        p = num_tasks;
+
+    }
+    
+    n = input_data.n;
 
     /*The master process checks that the correct number of processes are working*/
-    if (process_id == MASTER_PROCESS && num_tasks < 1) {
-        cout << "There are not process running.\n" << "The sorting will stop!\n";
+    if (process_id == MASTER_PROCESS) {
 
-        /*Stop the MPI process*/
-        MPI_Abort(MPI_COMM_WORLD, NTHREADS_ERROR);
-        exit(NTHREADS_ERROR);
+        /* Print input value */
+        cout << "The inserted values are p = " << p << " and n = " << n << ".\n";
+        cout << "Number of task running: " << num_tasks << ".\n";
+
+        if (num_tasks != p) {
+
+            cout << "There are not process running.\n" << "The sorting will stop!\n";
+
+            /*Stop the MPI process*/
+            MPI_Abort(MPI_COMM_WORLD, NTHREADS_ERROR);
+            exit(NTHREADS_ERROR);
+        }
     }
+
+    initial_array_size = padding(n, num_tasks);
 
 
     if (process_id == MASTER_PROCESS) {
+
         /*Memory allocation for the list of elements to sort*/
-        array = (int *) calloc(input_data.n, sizeof(int));
+        initial_array = (int *) calloc(initial_array_size, sizeof(int));
 
         /*Check if allocation succeed*/
-        if (array == nullptr) {
-            cout << "Process " << process_id << " failed to allocate memory for the elements to sort.";
+        if (initial_array == NULL) {
+
+            cout << "Process " << process_id << " failed to allocate memory for the elements to sort.\n";
 
             /*Stop the MPI process*/
             MPI_Abort(MPI_COMM_WORLD, CALLOC_ERROR);
-            free(array);
+            free(initial_array);
             exit(CALLOC_ERROR);
         }
 
-        initial_array_size = populate_array(array, input_data.n, num_tasks);
+        populate_array(initial_array, n, initial_array_size);
 
-        //array = populate_vector(array, n, num_tasks);
+        cout << "Initial array size: " << initial_array_size << "\n";
 
-        total_time = MPI_Wtime();
-
-        //cout << "Initial array content:\n";
-        //print_array(array, n);
-        //print_vector(array);
+        t_start = MPI_Wtime();
 
     }
 
     num_element = initial_array_size / num_tasks;
 
+    //cout << "Number of elements for each task: " << num_element << "\n";
+
     local_array = (int *) calloc(num_element, sizeof(int));
 
-    //num_element = array.size() / num_tasks;
-
-    //local_array.reserve(num_element);
-
     /*Check if allocation succeed*/
-    if (local_array == nullptr) {
-        cout << "Process " << process_id << " failed to allocate memory for the elements to sort.";
+    if (local_array == NULL) {
+
+        cout << "Process " << process_id << " failed to allocate memory for the elements to sort.\n";
 
         /*Stop the MPI process*/
         MPI_Abort(MPI_COMM_WORLD, CALLOC_ERROR);
         free(local_array);
-        free(array);
+        free(initial_array);
         exit(CALLOC_ERROR);
     }
 
-    //auto start_time = chrono::high_resolution_clock::now();
-
     t = MPI_Wtime();
+
     /* Sends data from master process to the slave processes */
     /* MPI_Scatter(const void *sendbuf, int sendcount, MPI_Datatype sendtype,void *recvbuf, int recvcount, MPI_Datatype recvtype, int root, MPI_Comm comm)
      */
-    MPI_Scatter(array, num_element, MPI_INT, local_array, num_element, MPI_INT, MASTER_PROCESS, MPI_COMM_WORLD);
+    MPI_Scatter(initial_array, num_element, MPI_INT, local_array, num_element, MPI_INT, MASTER_PROCESS, MPI_COMM_WORLD);
 
-    //MPI_Scatter(array.data(), num_element, MPI_INT, local_array.data(), num_element, MPI_INT, MASTER_PROCESS, MPI_COMM_WORLD);
-
-    communication_time += MPI_Wtime() - t;
-    //auto end_time = chrono::high_resolution_clock::now();
-
-    //auto time_spent = static_cast<chrono::duration<double>>(end_time - start_time);
-
-    //total_time += time_spent.count();
-
-    //cout << "Communication operation took: " << time_spent.count() << " seconds.";
-
-    cout << "Communication operation took: " << communication_time << " seconds.";
+    communication_time = communication_time + MPI_Wtime() - t;
+    
+    //cout << "Communication operation took: " << communication_time << " seconds. \n";
 
     /*Sort the local elements*/
-    qsort(local_array, num_element, sizeof(int), int_compare);
-
-    //sort(local_array.begin(), local_array.end(), bool_compare);
+    qsort(local_array, num_element, sizeof(int), compare);
 
     t = MPI_Wtime();
 
     /*Processes synchronization*/
     MPI_Barrier(MPI_COMM_WORLD);
 
-    communication_time += MPI_Wtime() - t;
+    communication_time = communication_time + MPI_Wtime() - t;
+
+    free(initial_array);
 
     for (int i = 0; i < log2(num_tasks); i++) {
-        for (int j = i; j >= 0 ; j--) {
+    
+        for (int j = i; j >= 0; j--) {
+
             /* The next process we will be paired with is the one
              * whose j-th bit is the complement of ours. So we toggle
              * our j-th bit using the XOR operation to find our partner
             */
             int partner = process_id ^ (1 << j);
+
             /* Check if we have to keep the smallest out of our elements
              * and our partner's or the largest.
              * We do this by checking the (i+1) bit of our id and comparing it
              * to the #j bit. If they are equal then we keep the small
              * elements , if not the larger ones.
             */
-            if ((( process_id >> (i + 1)) & 1 ) == ((process_id >> j) & 1)) {
-                bitonic_merge(&local_array, num_element, partner, ASCENDING, &communication_time);
-                //local_array = bitonic_merge_vector(local_array, partner, ASCENDING, &communication_time);
+
+            if (((process_id >> (i + 1)) & 1) == ((process_id >> j) & 1)) {
+
+                bitonic_merge(&local_array, num_element, partner, ASCENDING);
+
             } else {
-                bitonic_merge(&local_array, num_element, partner, DESCENDING, &communication_time);
-                //local_array = bitonic_merge_vector(local_array, partner, DESCENDING, &communication_time);
+
+                bitonic_merge(&local_array, num_element, partner, DESCENDING);
+
             }
         }
     }
-
-    //start_time = chrono::high_resolution_clock::now();
 
     t = MPI_Wtime();
 
     /*Processes synchronization*/
     MPI_Barrier(MPI_COMM_WORLD);
 
-    communication_time += MPI_Wtime() - t;
+    communication_time = communication_time + MPI_Wtime() - t;
 
-    //end_time = chrono::high_resolution_clock::now();
-
-    //time_spent = static_cast<chrono::duration<double>>(end_time - start_time);
-
-    //total_time += time_spent.count();
-
-    //cout << "Bitonic merge took: " << time_spent.count() << " seconds.";
-
-    int *sorted_array = nullptr;
+    int *sorted_array = NULL;
 
     if (process_id == MASTER_PROCESS) {
-        sorted_array = (int *) calloc(input_data.n, sizeof(int));
+
+        sorted_array = (int *) calloc(initial_array_size, sizeof(int));
+
+        /*Check if allocation succeed*/
+        if (sorted_array == NULL) {
+            cout << "Process " << process_id << " failed to allocate memory for the elements to sort.\n";
+
+            /*Stop the MPI process*/
+            MPI_Abort(MPI_COMM_WORLD, CALLOC_ERROR);
+            free(sorted_array);
+            free(local_array);
+            exit(CALLOC_ERROR);
+        }
+
     }
-
-    /*vector<int> sorted_array;
-
-    if (process_id == MASTER_PROCESS) {
-        sorted_array.reserve(n);
-    }*/
-
-    //start_time = chrono::high_resolution_clock::now();
 
     t = MPI_Wtime();
 
     MPI_Gather(local_array, num_element, MPI_INT, sorted_array, num_element, MPI_INT, MASTER_PROCESS, MPI_COMM_WORLD);
 
-    //MPI_Gather(local_array.data(), num_element, MPI_INT, sorted_array.data(), num_element, MPI_INT, MASTER_PROCESS, MPI_COMM_WORLD);
+    communication_time = communication_time + MPI_Wtime() - t;
 
-    communication_time += MPI_Wtime() - t;
-
-    //end_time = chrono::high_resolution_clock::now();
-
-    //time_spent = static_cast<chrono::duration<double>>(end_time - start_time);
-
-    //total_time += time_spent.count();
-
-    //cout << "Final sorted array took: " << time_spent.count() << " seconds.";
-
-
-    if (process_id == MASTER_PROCESS) {
-        total_time = MPI_Wtime() - total_time;
-        int sorted = correct_sorted(sorted_array, input_data.n);
+    if (process_id == MASTER_PROCESS && sorted_array != NULL) {
+        cout<<"Enter sorting verification.\n";
+        t_stop = MPI_Wtime();
+        double total_time = t_stop - t_start;
+        int sorted = correct_sorted(sorted_array, n);
         printf("Array is %s sort.\n", (sorted) ? "correctly" : "not correctly");
         cout << "Communication time: " << communication_time << " seconds.\n";
         cout << "Total time to sort the array: " << total_time << " seconds.\n";
-        cout << "The sorted array:\n";
-        print_array(sorted_array, input_data.n);
+        //cout << "The sorted array:\n";
+        //print_array(sorted_array, n);
     }
 
-    /*if (process_id == MASTER_PROCESS) {
-        total_time = MPI_Wtime() - total_time;
-        int sorted = correct_sorted_vector(sorted_array);
-        printf("Array is %s sort.\n", (sorted) ? "correctly" : "not correctly");
-        cout << "Communication time: " << communication_time << " seconds.\n";
-        cout << "Total time to sort the array: " << total_time << " seconds.\n";
-        cout << "The sorted array:\n";
-        print_vector(sorted_array);
-    }*/
-
     free(local_array);
-    free(array);
     free(sorted_array);
 
     MPI_Finalize();

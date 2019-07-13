@@ -27,33 +27,20 @@ typedef struct {
 } input;
 
 
+int padding(int num_element, int num_process);
+
 /**
  * Populate an array of integer
  * @param array The pointer to the array
  * @param num_element The number of elements in the array
  * @return The size of the populated array
  */
-int populate_array(int *array, int num_element, int num_process);
+void populate_array(int *array, int num_element_before_padding, int num_element_after_padding);
 
 
 int int_compare(const void *a, const void *b);
 
 bool bool_compare(int i, int j);
-
-/**
- * Cantor pairing function
- * @param a First process
- * @param b Second process
- * @return Number that encode the two points
- */
-int cantor(int a, int b);
-
-/**
- * Inverting the Cantor pairing function
- * @param z Number that encode the two process
- * @param res Array where the mapped processes are stored
- */
-void inverse_cantor(int z, int res[2]);
 
 /**
  * Merge function
