@@ -1,2 +1,2 @@
 # bitonic_sort
-Project for the course of parallel computing with argument a implementation of the bitonic sorting with MPI.
+Project for the course of parallel computing with argument an implementation of the bitonic sorting using MPI library.
